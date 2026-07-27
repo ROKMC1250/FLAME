@@ -17,7 +17,7 @@ single `dataset:` key in the config — each key switches the full protocol
 | Sensor / data | AVIRIS-NG ([STARCOP](https://github.com/spaceml-org/STARCOP)) | EMIT (synthetic; [OxHyperSyntheticCH4](https://huggingface.co/datasets/previtus/OxHyperSyntheticCH4)) |
 | SWIR input | 72 bands, 2122–2488 nm | 64 bands, 2004–2478 nm |
 | Training | full 512×512 tiles, two-phase curriculum (aux score pretrain → seg + decaying aux) | 64×64 / stride-32 grid windows, 50:50 plume-balanced sampler, BCE, bf16 |
-| Seg-head score input | physics score (self-contained) | mag1c product (`use_mag_in_seg: true`) |
+| Seg-head score input | physics score (self-contained) | physics score; mag1c as auxiliary target (`use_mag_in_seg: true` switches to mag1c input) |
 | Evaluation | full-tile, sigmoid > 0.5 + 3×3 morph. opening; pixel F1/IoU, strong/weak subsets, tile FPR | tile-level 64/32 windows, logits ≥ 0, no morph.; F1/IoU/AUPRC, easy/hard subsets (protocol of [HyperspectralViTs](https://arxiv.org/abs/2410.17248)) |
 
 ## Installation
