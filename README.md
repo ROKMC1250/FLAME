@@ -1,6 +1,7 @@
-# FLAME: Methane Plume Segmentation from Hyperspectral Imagery
+# FLAME: Physics-Guided Neural Operators for Onboard Satellite Methane Detection in Hyperspectral Imagery
 
-FLAME is a lightweight methane plume segmentation model. A Fourier neural
+Official code for FLAME, a lightweight physics-guided methane plume
+segmentation model. A Fourier neural
 operator (FNO / U-FNO) backbone with channel squeeze-and-excitation produces a
 shared feature map; two heads estimate the per-pixel background spectrum and a
 per-band spectral weight, which are combined with a fixed CH4 absorption
@@ -189,7 +190,7 @@ scripts/                 # data caches + mag1c product import
 
 ## License
 
-MIT — see [LICENSE](LICENSE). The STARCOP and OxHyperSyntheticCH4 datasets and
+Apache-2.0 — see [LICENSE](LICENSE). The STARCOP and OxHyperSyntheticCH4 datasets and
 the mag1c / methane-filters-benchmark tools are distributed under their own
 licenses.
 
@@ -197,7 +198,8 @@ licenses.
 
 ```bibtex
 @article{flame2026,
-  title   = {FLAME: Methane Plume Segmentation from Hyperspectral Imagery},
+  title   = {FLAME: Physics-Guided Neural Operators for Onboard Satellite
+             Methane Detection in Hyperspectral Imagery},
   author  = {},
   year    = {2026},
   note    = {Citation to be updated upon publication.}
