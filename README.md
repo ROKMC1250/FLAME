@@ -33,12 +33,19 @@ PyTorch with CUDA is required for training; evaluation also runs on CPU.
 
 ## Pretrained weights
 
-Two checkpoints are released, one per benchmark:
+Two checkpoints are released on the Hugging Face Hub
+([hjh1037/FLAME](https://huggingface.co/hjh1037/FLAME)), one per benchmark;
+additional seeds are available under `seeds/` for multi-seed reproduction.
 
 | Weights | Trained on | Config |
 |---|---|---|
 | `flame_starcop.pt` | STARCOP (AVIRIS-NG) | `configs/flame_starcop.yaml` |
 | `flame_emit.pt` | OxHyperSyntheticCH4 (EMIT) | `configs/flame_emit.yaml` |
+
+```bash
+pip install huggingface_hub
+hf download hjh1037/FLAME flame_starcop.pt flame_emit.pt --local-dir .
+```
 
 Evaluation and visualization discover runs under
 `logs/<uid>/seed_<N>/weights/best.pt` with a frozen `config.yaml` beside the
