@@ -1,4 +1,5 @@
-"""FLAME: physics-guided neural operator for methane plume segmentation.
+"""FLAME (Fourier Learned Absorption Matched Estimator): physics-guided
+neural operator for methane plume segmentation.
 
 Architecture:
     SWIR -> FNO/U-FNO backbone (channel-SE + SiLU) -> [bg_head, sw_head]
