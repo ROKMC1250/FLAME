@@ -1,0 +1,63 @@
+# FLAME on STARCOP (AVIRIS-NG) — reference training configuration.
+#
+# Protocol: full-tile (512x512) training with the two-phase curriculum —
+# aux-only score pretrain (pretrain_epochs), then end-to-end segmentation with
+# the auxiliary mag1c-sas L1 loss decaying over decay_frac of the remaining
+# epochs. Validation: pixel F1 at sigmoid > 0.5 with 3x3 morphological opening.
+
+dataset: starcop
+
+model:
+  in_channels: 72                # SWIR 2122-2488 nm (AVIRIS-NG)
+  width: 14
+  modes1: 12
+  modes2: 12
+  n_fno_layers: 3
+  n_ufno_layers: 3
+  dropout_rate: 0.0
+  seg_channels: [28, 14]
+  seg_kernel_size: 3
+  score_divisor: 1750.0
+  rgb_divisor: 60.0
+  norm_type: batch
+  score_clamp: [0.0, 2.0]
+  wv_range: [2122, 2488]
+  spectrum_path: resources/starcop/ch4_spectrum.npy
+  centers_path: resources/starcop/band_centers.npy
+  baseline_stats_path: resources/starcop/baseline_stats.pt
+
+train:
+  uid: flame_starcop
+  lr: 2.0e-3
+  epochs: 80
+  batch_size: 24                 # must be divisible by the number of GPUs
+  n_workers: 4
+  log_dir: logs
+  seed: 42
+  patience: 25
+  ckpt_interval: 10
+  prefetch_factor: 1
+  vis_interval: 10
+  pretrain_epochs: 10
+  aux_weight: 1.0
+  decay_frac: 0.5
+  seg_loss: dice_bce
+  warmup_epochs: 3
+  warmup_start_factor: 0.1
+
+data:
+  train_data_path:
+    - datasets/starcop
+  val_data_path: datasets/starcop/STARCOP_allbands_Eval
+  tile_size: 512
+  npy_dir: ~                     # optional SWIR npy cache (scripts/build_starcop_npy_cache.py)
+  val_max_tiles: ~
+  wv_range: [2122, 2488]
+  load_rgb: true
+  augment: true
+
+vis:
+  n_val_plume: 15
+  n_val_noplume: 5
+  n_train: 10
+  seed: 42

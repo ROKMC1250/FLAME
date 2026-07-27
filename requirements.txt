@@ -1,0 +1,12 @@
+torch>=2.1
+numpy
+pandas
+scipy
+scikit-learn
+pyyaml
+tqdm
+matplotlib
+tensorboard
+tifffile
+rasterio
+spectral

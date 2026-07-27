@@ -1,0 +1,72 @@
+# FLAME on OxHyperSyntheticCH4 (EMIT) — reference training configuration.
+#
+# Protocol (aligned to the HyperspectralViTs training regime, arXiv:2410.17248):
+# deterministic 64x64 / stride-32 grid windows from
+# train_filtered_v2_tiled_64_32.csv, plume windows balanced to ~50% of every
+# epoch by a with-replacement weighted sampler, BCE with pos_weight capped at
+# pw_max, 50 epochs, bf16 autocast. Validation reproduces the test protocol
+# (window pooling, logits >= 0, no morphological filtering).
+#
+# use_mag_in_seg: the segmentation head consumes the externally computed mag1c
+# product (B_magic30_tile.tif, shipped with the dataset) in place of the
+# physics score, at train and inference time. Set it to false to train the
+# self-contained physics variant; in that case enable the auxiliary score
+# supervision (e.g. aux_weight: 0.15, decay_frac: 1.0, aux_bg_weight: 0.1,
+# pw_max: 3) so the score head does not collapse.
+
+dataset: emit
+
+model:
+  in_channels: 64                # SWIR 2004-2478 nm (EMIT)
+  width: 32
+  modes1: 16
+  modes2: 16
+  n_fno_layers: 3
+  n_ufno_layers: 3
+  dropout_rate: 0.0
+  seg_channels: [32, 16]
+  seg_kernel_size: 3
+  score_divisor: 1750.0          # shared by score normalisation and the mag1c input
+  rgb_divisor: 20.0
+  norm_type: group
+  score_clamp: [-10.0, 10.0]
+  use_mag_in_seg: true
+  spectrum_path: resources/emit/ch4_spectrum.npy
+  centers_path: resources/emit/band_centers.npy
+  baseline_stats_path: resources/emit/baseline_stats.pt
+
+train:
+  uid: flame_emit
+  lr: 5.0e-4
+  epochs: 50
+  batch_size: 18                 # must be divisible by the number of GPUs
+  n_workers: 2
+  log_dir: logs
+  seed: 42
+  patience: 15
+  ckpt_interval: 10
+  prefetch_factor: 2
+  vis_interval: 10
+  pretrain_epochs: 0
+  aux_weight: 0.0
+  decay_frac: 0.5
+  grad_clip_norm: 5.0
+  seg_loss: bce
+  pw_max: 1
+  focal_gamma: 0.0
+  val_threshold: 0.5
+  amp: bf16
+  val_window_batch: 256
+  find_unused_parameters: true
+
+data:
+  root_dir: datasets/oxhyper_synthetic_ch4
+  store_dir: datasets/emit_ram64   # flat fp16 memmap store, built automatically
+  npy_cache_dir: ~                 # optional (scripts/build_emit_npy_cache.py)
+  windows_csv: train_filtered_v2_tiled_64_32.csv
+  wv_window: [2004.0, 2478.0]
+  patch_size: 64
+  stride: 32
+  augment: true
+  max_train_windows: ~
+  max_val_tiles: ~

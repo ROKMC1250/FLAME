@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Runs and outputs (keep the directory stubs)
+logs/*
+!logs/.gitkeep
+results/*
+!results/.gitkeep
+
+# Data (never committed)
+datasets/*
+!datasets/.gitkeep
+*.tif
+*.tiff
+
+# Checkpoints
+*.pt
+!resources/**/*.pt
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
