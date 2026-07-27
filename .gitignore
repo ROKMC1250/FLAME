@@ -24,3 +24,6 @@ datasets/*
 .vscode/
 .idea/
 .DS_Store
+
+# Third-party checkouts (methane-filters-benchmark clone)
+third_party/

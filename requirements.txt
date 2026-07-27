@@ -7,6 +7,7 @@ pyyaml
 tqdm
 matplotlib
 tensorboard
+huggingface_hub
 tifffile
 rasterio
 spectral

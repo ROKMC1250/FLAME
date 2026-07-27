@@ -77,12 +77,18 @@ logs/
 
 ### STARCOP (AVIRIS-NG)
 
-Download the STARCOP dataset (all-bands variant) from the
-[STARCOP project](https://github.com/spaceml-org/STARCOP) and place it under
-`datasets/starcop/` so that each tile is a directory with per-band
-`TOA_AVIRIS_{wavelength}nm.tif` files and a `labelbinary.tif` label, with
-`test.csv` at the root and the evaluation tiles under
-`STARCOP_allbands_Eval/`:
+```bash
+python scripts/download_starcop.py               # full dataset, ~633 GB
+python scripts/download_starcop.py --eval-only   # evaluation split only, ~82 GB
+```
+
+Downloads the four all-bands Hugging Face dataset repos
+(`previtus/STARCOP_allbands_{Train1,Train2,Train3,Eval}`; see the
+[STARCOP project](https://github.com/spaceml-org/STARCOP)) and arranges them
+under `datasets/starcop/` — each tile a directory of per-band
+`TOA_AVIRIS_{wavelength}nm.tif` files plus `labelbinary.tif`, split CSVs at
+the root, and the evaluation tiles both under `STARCOP_allbands_Eval/` and
+hard-linked at the root:
 
 ```
 datasets/starcop/
@@ -96,14 +102,19 @@ datasets/starcop/
 
 Training (not evaluation) additionally requires a per-tile
 `mag1c_sas_cache.npy` — the mag1c matched filter run with 1% covariance
-subsampling (`mag1c --sample 0.01`), used as the auxiliary target of the
-physics score head. Generate the products with the
+subsampling (`mag1c --sample 0.01` on the 2122–2488 nm bands), used as the
+auxiliary target of the physics score head. One command generates and imports
+them (clones the
 [methane filters benchmark](https://github.com/zaitra/methane-filters-benchmark)
-and import them:
+on first use; requires a CUDA GPU and `pip install pysptools imagecodecs`;
+roughly 3 s per tile):
 
 ```bash
-python scripts/import_mag1c_products.py --products <benchmark_products_dir> --root datasets/starcop
+python scripts/generate_mag1c_products.py --root datasets/starcop --csv train.csv
 ```
+
+If you already have benchmark products, import them directly with
+`scripts/import_mag1c_products.py`.
 
 Optional speed-up: pre-stack the SWIR bands and point `data.npy_dir` at the
 cache.
@@ -114,12 +125,17 @@ python scripts/build_starcop_npy_cache.py --root datasets/starcop --out datasets
 
 ### EMIT (OxHyperSyntheticCH4)
 
-Download [OxHyperSyntheticCH4](https://huggingface.co/datasets/previtus/OxHyperSyntheticCH4)
+```bash
+python scripts/download_emit.py
+```
+
+Downloads [OxHyperSyntheticCH4](https://huggingface.co/datasets/previtus/OxHyperSyntheticCH4)
 to `datasets/oxhyper_synthetic_ch4/` (per-event directories plus the split
 CSVs `train_filtered_v2.csv`, `val_filtered_v2.csv`, `test_filtered_v2.csv`,
 and the window index `train_filtered_v2_tiled_64_32.csv`). Each event
 directory contains the ENVI cube `B`/`B.hdr`, RGB TIFFs, the mag1c product
-`B_magic30_tile.tif`, and `labelbinary.tif`.
+`B_magic30_tile.tif` (precomputed — no mag1c generation needed on EMIT), and
+`labelbinary.tif`.
 
 The first training run consolidates each split into a flat fp16 memmap store
 under `data.store_dir` (~30 GB for train); subsequent runs reuse it. Optional
