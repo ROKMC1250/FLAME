@@ -1,20 +1,10 @@
-"""Evaluate FLAME on the STARCOP test split.
+"""STARCOP test evaluation.
 
-Protocol:
-    * one full-tile forward pass per test tile (zero-padded to 512 when
-      smaller; padding excluded via the valid mask);
-    * binary mask = sigmoid(logits) > threshold (0.5) followed by a 3x3 cross
-      morphological opening;
-    * pixel metrics (F1 / precision / recall / IoU) from a global confusion
-      over the valid pixels of all test tiles; AUPRC threshold-free;
-    * emission-rate subsets: ``strong`` = plume tiles with qplume > 1000 kg/h,
-      ``weak`` = the remaining plume tiles. Each subset additionally includes
-      every plume-free tile, so the background false-positive load is identical
-      across subsets;
-    * tile-level FPR: fraction of plume-free tiles with at least one predicted
-      positive pixel after the opening.
-
-Per-seed rows are aggregated to mean +/- std over ``logs/<uid>/seed_*``.
+Full-tile inference, sigmoid > threshold plus a 3x3 cross morphological
+opening, pixel metrics from a global confusion over valid pixels. Plume tiles
+are split into strong/weak subsets at qplume 1000 kg/h; plume-free tiles are
+included in both subsets so the background FP load matches. Tile FPR is the
+fraction of plume-free tiles with at least one predicted pixel.
 """
 from __future__ import annotations
 
@@ -123,7 +113,7 @@ def write_outputs(per_seed, aggregated, out_dir, threshold):
     pd.DataFrame(per_seed).to_csv(os.path.join(out_dir, 'metrics_per_seed.csv'), index=False)
     md_path = os.path.join(out_dir, 'metrics.md')
     with open(md_path, 'w') as f:
-        f.write('# FLAME — STARCOP test metrics\n\n')
+        f.write('# FLAME - STARCOP test metrics\n\n')
         f.write(f'Protocol: full-tile inference, sigmoid > {threshold} + 3x3 cross '
                 f'morphological opening, global pixel confusion over valid pixels. '
                 f'strong = qplume > {STRONG_KGH:.0f} kg/h.\n\n')

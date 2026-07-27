@@ -52,7 +52,7 @@ def run_benchmark(benchmark_dir, root, csv_path, out_dir, sample, resume):
         'SELECT_BANDS': False,
         'BANDS_N': 72,
         'STRATEGY': 'highest-transmittance',
-        'CREATE_OTHER_FILTERS': False,    # mag1c only — no CEM/MF/ACE
+        'CREATE_OTHER_FILTERS': False,    # mag1c only - no CEM/MF/ACE
         'RESUME': resume,
         'PRECISION': 64,
         'USE_SPED_UP_VERSIONS_OF_FILTERS': True,
@@ -130,7 +130,7 @@ def main():
 
     n = import_caches(args.out, args.root, args.sample, overwrite=args.overwrite)
     if n == 0:
-        sys.exit('No products found to import — check the benchmark output.')
+        sys.exit('No products found to import - check the benchmark output.')
     print(f'\nDone. Products remain under {args.out} (delete to reclaim space).')
 
 

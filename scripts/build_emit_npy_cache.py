@@ -3,9 +3,9 @@
 The ENVI cube decode (all 86 bands, ~90 MB per tile) dominates the one-time
 RAM-store build. This pre-decodes each tile's band-sliced cube once to
 ``<out>/<event_id>.npy``. Point ``data.npy_cache_dir`` of the config at
-``--out``. Optional — without it the store build decodes ENVI directly.
+``--out``. Optional - without it the store build decodes ENVI directly.
 
-Caches the band-SLICED cube (per resources/wv window), BEFORE nan/scale — the
+Caches the band-SLICED cube (per resources/wv window), BEFORE nan/scale - the
 dataset applies nan_to_num + CUBE_SCALE on load.
 
 Usage (from repo root):
@@ -48,7 +48,7 @@ def _one(args):
         cube = np.transpose(cube, (2, 0, 1))                 # (n, H, W)
         np.save(dst, cube.astype(np.float16))
         return 1
-    except Exception as e:  # noqa: BLE001 — report and continue
+    except Exception as e:
         print(f'FAIL {eid}: {e}')
         return -1
 

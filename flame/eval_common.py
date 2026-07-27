@@ -30,7 +30,7 @@ def load_run(run: Dict, device: str) -> Tuple[FLAME, dict, bool]:
     """Build FLAME from a run's frozen config and load its best.pt.
 
     Returns (model.eval(), cfg, use_mag). ``use_mag`` mirrors the frozen
-    config's ``model.use_mag_in_seg`` — when true, mag1c must be passed to
+    config's ``model.use_mag_in_seg`` - when true, mag1c must be passed to
     ``model(...)`` at inference.
     """
     cfg = yaml.load(open(run['config_path']), Loader=yaml.FullLoader)

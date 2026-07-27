@@ -1,15 +1,9 @@
-"""FLAME qualitative visualization — unified entry point.
+"""FLAME qualitative visualization.
 
-Renders per-tile panel figures for a trained run:
-    * ``starcop`` — 6 panels: RGB | physics score | prob | pred | GT | TP/FP/FN,
-      full-tile inference.
-    * ``emit`` — 7 panels: RGB | mag1c | physics score | prob | pred | GT |
-      TP/FP/FN, overlap-averaged 64/32 sliding-window inference. The displayed
-      probability map is stitched purely for a clean picture; reported metrics
-      come from evaluate.py.
-
-Output layout: ``logs/<uid>/seed_<N>/visualizations/`` (next to the weights),
-or ``--out-dir <dir>/<uid>/seed_<N>/``.
+Renders per-tile panel figures (RGB, score/mag1c, probability, prediction,
+GT, error map) into logs/<uid>/seed_<N>/visualizations/. STARCOP runs
+full-tile inference; EMIT stitches 64/32 sliding windows for display only,
+reported metrics come from evaluate.py.
 
 Usage:
     python visualize.py --uid flame_starcop --max-tiles 20

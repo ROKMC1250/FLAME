@@ -1,11 +1,6 @@
-"""FLAME training — unified entry point.
+"""FLAME training entry point.
 
-The ``dataset`` key of the config selects the training protocol:
-    * ``starcop`` — full-tile training on STARCOP (AVIRIS-NG) with the
-      two-phase curriculum (aux score pretrain -> seg + decaying aux).
-    * ``emit`` — grid-window training on OxHyperSyntheticCH4 (EMIT): 64x64 /
-      stride-32 windows, 50:50 plume-balanced sampler, test-protocol
-      validation.
+The dataset key of the config (starcop or emit) selects the training pipeline.
 
 Usage:
     python train.py --config configs/flame_starcop.yaml --seed 42

@@ -1,15 +1,8 @@
-"""FLAME evaluation — unified entry point.
+"""FLAME evaluation entry point.
 
-Discovers ``logs/<uid>/seed_*/weights/best.pt`` and applies the evaluation
-protocol matching the run's dataset:
-    * ``starcop`` — full-tile inference, sigmoid > 0.5 + 3x3 morphological
-      opening, pixel F1/IoU + emission-rate subsets + tile-level FPR.
-    * ``emit`` — paper-aligned tile-level protocol (64/32 windows, logits >= 0,
-      no morphological filtering, AUPRC, easy/hard subsets).
-
-The dataset is read from the run's frozen ``config.yaml`` (or forced with
-``--dataset``). Remaining flags are forwarded to the protocol evaluator — see
-``python evaluate.py --dataset starcop --help`` and ``--dataset emit --help``.
+Discovers logs/<uid>/seed_*/weights/best.pt and runs the evaluation protocol
+for the run's dataset, read from its frozen config.yaml or forced with
+--dataset. Remaining flags are forwarded to the protocol evaluator.
 
 Usage:
     python evaluate.py --uid flame_starcop

@@ -1,19 +1,11 @@
-"""Evaluate FLAME on the OxHyperSyntheticCH4 (EMIT) test split.
+"""EMIT (OxHyperSyntheticCH4) test evaluation.
 
-Evaluation protocol — aligned to HyperspectralViTs (arXiv:2410.17248):
-    * ``--eval-mode tile`` (default, paper-aligned): each 512x512 test tile is
-      cut into 64x64 windows at stride 32, every window is scored
-      independently, and per-pixel predictions/labels/scores are pooled into a
-      single global set across all windows of all tiles (overlap pixels counted
-      once per window). Binary mask = logits >= 0 (== prob >= 0.5). No
-      prediction-side morphological filtering.
-    * ``--eval-mode stitch``: full-tile overlap-averaged probability map,
-      ``--morph`` optionally applies a morphological opening. Not the paper
-      protocol; provided for qualitative comparison.
-    * AUPRC = threshold-free average precision over valid pixels.
-    * Difficulty subsets (all / easy / hard) per the STARCOP ``difficulty``
-      flag; easy/hard include every plume-free tile plus the plume tiles of
-      that difficulty (identical background load across subsets).
+Follows the HyperspectralViTs protocol (arXiv:2410.17248): each 512x512 tile
+is scored as 64x64 windows at stride 32, per-pixel results are pooled over all
+windows of all tiles, mask = logits >= 0, no morphological filtering, AUPRC
+over valid pixels. easy/hard subsets follow the STARCOP difficulty flag, with
+plume-free tiles included in both. --eval-mode stitch instead averages
+overlapping windows into one full-tile probability map.
 """
 from __future__ import annotations
 
@@ -151,7 +143,7 @@ def write_outputs(per_seed, aggregated, out_dir, eval_mode, morph):
     pd.DataFrame(per_seed).to_csv(os.path.join(out_dir, 'metrics_per_seed.csv'), index=False)
     md_path = os.path.join(out_dir, 'metrics.md')
     with open(md_path, 'w') as f:
-        f.write('# FLAME — OxHyperSyntheticCH4 (EMIT) test metrics\n\n')
+        f.write('# FLAME - OxHyperSyntheticCH4 (EMIT) test metrics\n\n')
         f.write(f'Eval protocol: `{eval_mode}` mode, threshold=0.5 (logits>=0), '
                 f'morph_open={"on" if (morph and eval_mode == "stitch") else "off"}, '
                 f'AUPRC over valid pixels.\n\n')

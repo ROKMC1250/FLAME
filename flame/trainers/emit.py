@@ -1,19 +1,11 @@
-"""FLAME trainer for the EMIT (OxHyperSyntheticCH4) grid-window protocol.
+"""EMIT grid-window trainer.
 
-Training regime (aligned to the HyperspectralViTs baselines, arXiv:2410.17248):
-    * samples = deterministic 64x64 / stride-32 grid windows,
-      plume windows ~50% of every epoch via a with-replacement weighted sampler;
-    * BCE with class-balance pos_weight (pw_max=1 in the reference config);
-    * mag1c / score_divisor clip(0, 2), RGB / rgb_divisor clip(0, 2);
-    * bf16 autocast (SpectralConv2d pins its FFT to fp32 internally);
-    * validation = the exact test protocol: 64/32 grid windows scored
-      independently in large batches, mask = logits >= 0, valid-pixel confusion
-      pooled over windows, NO morphological filtering — the selection metric
-      matches the reported test metric.
-
-When ``model.use_mag_in_seg`` is true the raw mag1c map is passed to the model
-so the segmentation head consumes mag1c in place of the physics score; the
-physics score head is then (optionally) supervised by the auxiliary loss only.
+Matches the HyperspectralViTs training regime: 64x64/stride-32 grid windows,
+about half plume windows per epoch, BCE with capped pos_weight, bf16 autocast
+(SpectralConv2d keeps its FFT in fp32). Validation reproduces the test
+protocol (window pooling, logits >= 0, no morphological filtering) so model
+selection matches the reported metric. With model.use_mag_in_seg the raw
+mag1c map is fed to the seg head in place of the physics score.
 """
 from __future__ import annotations
 

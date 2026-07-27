@@ -6,7 +6,7 @@ Source: https://huggingface.co/datasets/previtus/OxHyperSyntheticCH4
 ``B_magic30_tile.tif``, and ``labelbinary.tif``).
 
 The Hub layout already matches what the code expects, so this is a plain
-snapshot into --root (default ``datasets/oxhyper_synthetic_ch4``) — no
+snapshot into --root (default ``datasets/oxhyper_synthetic_ch4``) - no
 re-arrangement and no mag1c generation needed.
 
 Usage (from repo root):

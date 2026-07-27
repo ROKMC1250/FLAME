@@ -83,7 +83,7 @@ def save_6panel_visualization(tile_path, tile_id, panel2_data, panel2_title,
 
     ax[5].imshow(em); ax[5].set_title('TP/FP/FN'); ax[5].axis('off')
 
-    fig.suptitle(f'{model_name} (Epoch {epoch + 1}) — {tile_id}', fontsize=10)
+    fig.suptitle(f'{model_name} (Epoch {epoch + 1}) - {tile_id}', fontsize=10)
     plt.tight_layout()
     os.makedirs(vis_dir, exist_ok=True)
     plt.savefig(os.path.join(vis_dir, f'{tile_id}.png'), dpi=120, bbox_inches='tight')
@@ -159,7 +159,7 @@ def save_emit_panel(eid, diff, rgb_chw, mag, score, prob, gt, vis_dir,
 
     ax[6].imshow(em); ax[6].set_title('TP/FP/FN'); ax[6].axis('off')
 
-    fig.suptitle(f'{model_name} — {eid}  [difficulty={diff}]', fontsize=11)
+    fig.suptitle(f'{model_name} - {eid}  [difficulty={diff}]', fontsize=11)
     plt.tight_layout()
     os.makedirs(vis_dir, exist_ok=True)
     out = os.path.join(vis_dir, f'{eid}.png')

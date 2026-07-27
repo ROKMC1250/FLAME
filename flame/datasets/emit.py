@@ -1,18 +1,15 @@
-"""EMIT (OxHyperSyntheticCH4) dataset for FLAME.
+"""EMIT (OxHyperSyntheticCH4) datasets.
 
-Per-tile artifacts from a mirror of ``previtus/OxHyperSyntheticCH4`` laid out
-as ``<root>/<event_id>/{B, B.hdr, B_EMIT_*nm.tif, B_magic30_tile.tif,
-labelbinary.tif, ...}``. Splits are defined by CSV files at the dataset root
-(``train_filtered_v2.csv``, ``val_filtered_v2.csv``, ``test_filtered_v2.csv``)
-via the ``event_id`` column.
+Tiles live under <root>/<event_id>/ with the ENVI cube B/B.hdr, RGB tifs, the
+mag1c product B_magic30_tile.tif and labelbinary.tif. Splits come from the
+CSVs at the dataset root.
 
-Two dataset classes:
-    * ``EMITDataset`` — one item per tile; used for evaluation/visualization
-      (val/test return the full 512x512 tile) and for building the RAM store.
-    * ``EMITGridDataset`` — the training regime: deterministic 64x64/stride-32
-      grid windows from ``train_filtered_v2_tiled_64_32.csv``, plume windows
-      balanced to ~50% of each epoch by a with-replacement weighted sampler.
-      Backed by a flat fp16 memmap store built once by ``build_ram_store``.
+EMITDataset returns one item per tile (full 512x512 for val/test, a random
+crop for train) and is used for evaluation and for building the RAM store.
+EMITGridDataset is the training regime: the deterministic 64x64/stride-32
+grid windows from train_filtered_v2_tiled_64_32.csv over a flat fp16 memmap
+store, with plume windows balanced to about half of each epoch by a
+with-replacement weighted sampler.
 """
 from __future__ import annotations
 
@@ -60,7 +57,7 @@ class EMITDataset(Dataset):
         root_dir: dataset root containing ``<event_id>/`` subfolders and split CSVs.
         split: one of ``train``, ``val``, ``test``. Selects the matching CSV.
         csv_name: override CSV filename.
-        wv_window: (lo, hi) nm — bands inside this window are kept.
+        wv_window: (lo, hi) nm - bands inside this window are kept.
         patch_size: spatial size emitted in ``train`` mode. Ignored in val/test.
         augment: apply random flip/90 rotation in ``train`` mode.
         rgb_bands: filenames of single-band RGB TIFFs in (R, G, B) order.
@@ -134,7 +131,7 @@ class EMITDataset(Dataset):
 
         # Band layout is sensor-fixed across the whole dataset (86 EMIT bands).
         # Some tiles lost wavelength metadata during HF re-packaging and report
-        # 'Band 1..86' in their hdr — so prefer the shipped resources files.
+        # 'Band 1..86' in their hdr - so prefer the shipped resources files.
         repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         res_dir = resources_dir or os.path.join(repo_root, 'resources', 'emit')
         if not os.path.isabs(res_dir):
@@ -174,7 +171,7 @@ class EMITDataset(Dataset):
     def _load_tile(self, eid: str):
         import spectral as spy
         tdir = os.path.join(self.root_dir, eid)
-        # Fast path: pre-decoded band-sliced cube .npy — avoids the per-item
+        # Fast path: pre-decoded band-sliced cube .npy - avoids the per-item
         # ENVI decode of the full 86-band cube.
         npy = (os.path.join(self._npy_cache_dir, eid + '.npy')
                if self._npy_cache_dir else None)
@@ -281,7 +278,7 @@ def build_ram_store(root_dir: str, split: str, store_dir: str,
 
     Datasets open the arrays with ``mmap_mode='r'``; the OS page cache keeps
     them RAM-resident and shared across DDP ranks and dataloader workers, so a
-    ``__getitem__`` is a small slice copy — no TIFF/ENVI decode. Skips if the
+    ``__getitem__`` is a small slice copy - no TIFF/ENVI decode. Skips if the
     store is already present.
     """
     if store_complete(store_dir, split):
@@ -397,7 +394,7 @@ class EMITGridDataset(Dataset):
             if max_tiles is not None:
                 self.n_tiles = min(self.n_tiles, max_tiles)
 
-    # Plume windows get 1/plume_fraction, others 1/(1-plume_fraction) — each
+    # Plume windows get 1/plume_fraction, others 1/(1-plume_fraction) - each
     # group sums to N, so a with-replacement draw is 50:50 plume/non-plume in
     # expectation.
     @property
@@ -418,7 +415,7 @@ class EMITGridDataset(Dataset):
             self._gt = np.load(self._paths['gt'], mmap_mode='r')
 
     def get_full_tile(self, tile_idx: int):
-        """Full 512x512 tile tensors by STORE index (both splits) — used by the
+        """Full 512x512 tile tensors by STORE index (both splits) - used by the
         training-time visualization hook; read-only."""
         self._ensure_open()
         cube = np.asarray(self._cube[tile_idx], dtype=np.float32) * self.CUBE_SCALE

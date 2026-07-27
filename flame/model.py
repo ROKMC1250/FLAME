@@ -1,24 +1,12 @@
-"""FLAME (Fourier Learned Absorption Matched Estimator): physics-guided
-neural operator for methane plume segmentation.
+"""FLAME model.
 
-Architecture:
-    SWIR -> FNO/U-FNO backbone (channel-SE + SiLU) -> [bg_head, sw_head]
-         -> parameter-free physics score (aux supervised)
-         -> cat[feat, score_norm, rgb_norm] -> conv seg head -> logits
+SWIR cube -> FNO/U-FNO backbone -> background head + spectral weight head
+-> parameter-free physics score -> conv segmentation head.
 
-Input:  (B, C, H, W) SWIR cube + (B, 3, H, W) RGB
-Output: (B, 1, H, W) segmentation logits, (B, 1, H, W) normalized score
-
-The CH4 absorption spectrum, the band centers, and the background-mean
-initialisation statistics are loaded from a per-dataset resource directory
-(``resources/starcop`` for AVIRIS-NG/STARCOP, ``resources/emit`` for
-EMIT/OxHyperSyntheticCH4); see ``configs/flame_*.yaml``.
-
-``forward`` optionally accepts an externally computed matched-filter product
-``mag`` (mag1c). When given, the segmentation head receives ``mag`` (divided by
-``score_divisor``, clamped to [0, 2]) in place of the physics score — the
-regime used on EMIT, where mag1c is available at train and inference time.
-Without ``mag`` the model is fully self-contained (STARCOP regime).
+The CH4 spectrum, band centers and background stats are loaded from the
+resource directory given in the config (resources/starcop or resources/emit).
+forward() can optionally take a mag1c map, in which case the seg head uses it
+in place of the physics score (the EMIT mag-in-seg variant).
 """
 
 import os
@@ -242,13 +230,13 @@ class FLAME(nn.Module):
         score_divisor: normalisation constant for the physics score (and for
             ``mag`` when it is fed to the segmentation head).
         rgb_divisor: normalisation constant for RGB.
-        norm_type: 'batch' | 'group' | 'none' — normalisation in the seg head.
+        norm_type: 'batch' | 'group' | 'none' - normalisation in the seg head.
         score_clamp: (min, max) clamp of the normalised physics score.
         spectrum_path: .npy CH4 absorption spectrum. Either already sliced to
             ``in_channels`` entries, or full-resolution together with
             ``centers_path`` + ``wv_range`` for slicing at load time.
         centers_path: .npy band centers matching ``spectrum_path`` (optional).
-        baseline_stats_path: .pt with key ``mu_mean`` — mean background
+        baseline_stats_path: .pt with key ``mu_mean`` - mean background
             spectrum used to initialise ``bg_head.bias`` (optional).
         wv_range: (lo, hi) nm window used to slice the spectrum when
             ``centers_path`` is given.

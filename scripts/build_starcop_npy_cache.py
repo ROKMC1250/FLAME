@@ -37,7 +37,7 @@ def _one(args):
         cube = np.stack(bands, axis=0).astype(dtype)
         np.save(dst, cube)
         return 1
-    except Exception as e:  # noqa: BLE001 — report and continue
+    except Exception as e:
         print(f'FAIL {tid}: {e}')
         return -1
 

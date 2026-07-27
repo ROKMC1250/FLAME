@@ -1,16 +1,12 @@
-"""STARCOP (AVIRIS-NG) dataset for FLAME.
+"""STARCOP (AVIRIS-NG) dataset.
 
-Tile layout: per-band ``TOA_AVIRIS_{wv}nm.tif`` + ``labelbinary.tif`` (GT).
-Native 512x512; smaller tiles are zero-padded (padding is excluded from the
-loss/metrics via the valid mask ``cube.abs().sum(0) > 0``).
+Tiles are directories of per-band TOA_AVIRIS_{wv}nm.tif files plus
+labelbinary.tif. 72 SWIR bands in 2122-2488 nm are auto-discovered per tile;
+smaller tiles are zero-padded and the padding is masked out downstream.
+npy_dir/npz_dir point at optional pre-stacked cube caches.
 
-SWIR bands: 72 bands in 2122-2488 nm, auto-discovered per tile.
-Optional fast paths: ``npy_dir`` (pre-stacked SWIR-only .npy, fp16 or fp32 —
-see scripts/build_starcop_npy_cache.py) or ``npz_dir``.
-
-``STARCOPTrainDataset`` additionally serves the per-tile mag1c-sas score cache
-(``mag1c_sas_cache.npy``) used as the auxiliary target of the physics score
-head — see scripts/import_mag1c_products.py.
+STARCOPTrainDataset adds the per-tile mag1c_sas_cache.npy as a 4th element,
+used as the aux target of the score head during training.
 """
 import os
 import random
@@ -71,7 +67,7 @@ class STARCOPDataset(torch.utils.data.Dataset):
 
         # Determine SWIR band indices
         if npy_dir:
-            # npy files already contain SWIR-only bands — no index needed
+            # npy files already contain SWIR-only bands - no index needed
             self.selected_wavelengths = self._select_wavelengths(self.tile_paths[0])
         elif npz_dir:
             self._init_npz_band_indices()
@@ -308,7 +304,7 @@ def load_tile_for_inference(tile_path, npy_dir=None, selected_wv=None,
     """Load a single STARCOP tile (no augmentation) for inference/visualization.
 
     Returns:
-        cube: (B, H, W) tensor — SWIR bands (padded to pad_to)
+        cube: (B, H, W) tensor - SWIR bands (padded to pad_to)
         rgb:  (3, H, W) tensor or None
         gt:   (H, W) tensor
         (H, W): original spatial dims before padding

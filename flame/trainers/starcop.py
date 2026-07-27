@@ -1,14 +1,10 @@
-"""FLAME trainer for the STARCOP (AVIRIS-NG) protocol.
+"""STARCOP trainer.
 
-Recipe: FLAME backbone -> dual heads -> physics score -> conv seg head, with an
-auxiliary score-level L1 loss against the mag1c-sas target that decays on a
-two-phase curriculum:
-    * Phase 1 (epoch < pretrain_epochs): aux loss only; the seg forward is kept
-      with a tiny weight for DDP gradient flow.
-    * Phase 2: full end-to-end seg loss + decaying aux loss.
-
-Validation: full-tile F1 at sigmoid > val_threshold with a 3x3 cross
-morphological opening, over valid (non-padded) pixels.
+Two-phase curriculum: aux-only score pretraining for pretrain_epochs (the seg
+forward is kept at a tiny weight for DDP gradient flow), then end-to-end
+segmentation with the aux loss decaying over decay_frac of the remaining
+epochs. Validation is full-tile F1 at sigmoid > val_threshold with a 3x3
+morphological opening over valid pixels.
 """
 import os
 
